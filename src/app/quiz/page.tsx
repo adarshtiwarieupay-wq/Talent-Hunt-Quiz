@@ -183,7 +183,7 @@ export default function QuizPage() {
         
         <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
           <h3 className="text-xs font-extrabold text-gray-400 mb-4 uppercase tracking-widest text-center">Questions</h3>
-          <div className="grid grid-cols-5 gap-2">
+          <div className="grid grid-cols-5 gap-2 p-2">
             {questions.map((q, idx) => {
               const isAnswered = !!answers[q._id];
               const isCurrent = idx === currentIndex;
