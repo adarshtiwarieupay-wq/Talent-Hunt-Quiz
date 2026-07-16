@@ -80,8 +80,9 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     if (error instanceof z.ZodError) {
       const fieldErrors: Record<string, string> = {};
-      error.errors.forEach(err => {
-        if (err.path[0]) {
+      const zodErrors = (error as any).errors;
+      zodErrors.forEach((err: any) => {
+        if (err.path && err.path[0]) {
           fieldErrors[err.path[0].toString()] = err.message;
         }
       });
