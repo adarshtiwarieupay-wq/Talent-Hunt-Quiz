@@ -12,6 +12,8 @@ const TEST_DURATION_MINUTES = 25; // Configurable test duration
 const startSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
   email: z.string().email('Invalid email address'),
+  contactNo: z.string().min(1, 'Contact number is required'),
+  country: z.string().min(1, 'Country is required'),
 });
 
 export async function POST(req: NextRequest) {
@@ -26,6 +28,8 @@ export async function POST(req: NextRequest) {
       candidate = await Candidate.create({
         name: parsed.name,
         email: parsed.email,
+        contactNo: parsed.contactNo,
+        country: parsed.country,
         hasStarted: true,
         hasCompleted: false,
       });

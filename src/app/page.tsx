@@ -7,6 +7,8 @@ import Image from "next/image";
 export default function Home() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [contactNo, setContactNo] = useState("");
+  const [country, setCountry] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
@@ -20,7 +22,7 @@ export default function Home() {
       const res = await fetch("/api/auth/start", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email }),
+        body: JSON.stringify({ name, email, contactNo, country }),
       });
 
       const data = await res.json();
@@ -81,6 +83,30 @@ export default function Home() {
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full px-5 py-4 rounded-xl bg-gray-50 border border-gray-200 focus:border-[#0055A4] focus:ring-2 focus:ring-[#0055A4]/20 outline-none transition-all duration-300 text-gray-900 placeholder-gray-400"
                 placeholder="jean@example.fr"
+              />
+            </div>
+            <div>
+              <label htmlFor="contactNo" className="block text-sm font-bold text-gray-700 mb-2">Contact Number</label>
+              <input
+                id="contactNo"
+                type="tel"
+                required
+                value={contactNo}
+                onChange={(e) => setContactNo(e.target.value)}
+                className="w-full px-5 py-4 rounded-xl bg-gray-50 border border-gray-200 focus:border-[#0055A4] focus:ring-2 focus:ring-[#0055A4]/20 outline-none transition-all duration-300 text-gray-900 placeholder-gray-400"
+                placeholder="+33 6 12 34 56 78"
+              />
+            </div>
+            <div>
+              <label htmlFor="country" className="block text-sm font-bold text-gray-700 mb-2">Country</label>
+              <input
+                id="country"
+                type="text"
+                required
+                value={country}
+                onChange={(e) => setCountry(e.target.value)}
+                className="w-full px-5 py-4 rounded-xl bg-gray-50 border border-gray-200 focus:border-[#0055A4] focus:ring-2 focus:ring-[#0055A4]/20 outline-none transition-all duration-300 text-gray-900 placeholder-gray-400"
+                placeholder="France"
               />
             </div>
             {error && <p className="text-[#EF4135] text-sm text-center font-bold bg-red-50 py-3 rounded-lg border border-red-100">{error}</p>}
