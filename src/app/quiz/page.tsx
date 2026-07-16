@@ -18,14 +18,16 @@ export default function QuizPage() {
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [showSubmitModal, setShowSubmitModal] = useState(false);
 
   const answersRef = useRef(answers);
   useEffect(() => {
     answersRef.current = answers;
   }, [answers]);
 
-  const handleSubmit = useCallback(async () => {
+  const performSubmit = useCallback(async () => {
     if (isSubmitting) return;
+    setShowSubmitModal(false);
     setIsSubmitting(true);
 
     const token = localStorage.getItem("quizToken");
@@ -117,7 +119,7 @@ export default function QuizPage() {
       const remaining = Math.max(0, Math.floor((endTime - now) / 1000));
       setTimeLeft(remaining);
       if (remaining === 0) {
-        handleSubmit();
+        performSubmit();
       }
     };
 
@@ -125,7 +127,11 @@ export default function QuizPage() {
     const interval = setInterval(updateTimer, 1000);
 
     return () => clearInterval(interval);
-  }, [router, handleSubmit]);
+  }, [router, performSubmit]);
+
+  const handleSubmit = () => {
+    setShowSubmitModal(true);
+  };
 
   if (questions.length === 0 || timeLeft === null) {
     return <div className="min-h-screen flex items-center justify-center bg-gray-50 text-[#0055A4] font-bold text-xl">Chargement (Loading)...</div>;
@@ -276,6 +282,41 @@ export default function QuizPage() {
           </div>
         </div>
       </main>
+
+      {/* Submit Confirmation Modal */}
+      {showSubmitModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="bg-white rounded-3xl p-8 max-w-sm w-full mx-4 shadow-2xl transform scale-100 transition-transform">
+            <div className="flex justify-center mb-6">
+              <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center">
+                <svg className="w-8 h-8 text-[#EF4135]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
+            </div>
+            <h3 className="text-2xl font-bold text-center text-gray-900 mb-2">Submit Test?</h3>
+            <p className="text-center text-gray-600 mb-8 font-medium">
+              Are you sure you want to submit your test? You will not be able to change your answers later.
+            </p>
+            <div className="flex flex-col space-y-3">
+              <button
+                onClick={performSubmit}
+                disabled={isSubmitting}
+                className="w-full py-3.5 bg-[#EF4135] hover:bg-[#d63a2f] text-white rounded-xl font-bold text-lg shadow-lg shadow-red-500/20 transition-all active:scale-95 disabled:opacity-50"
+              >
+                Yes, Submit Test
+              </button>
+              <button
+                onClick={() => setShowSubmitModal(false)}
+                disabled={isSubmitting}
+                className="w-full py-3.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-bold text-lg transition-all active:scale-95 disabled:opacity-50"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

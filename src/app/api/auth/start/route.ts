@@ -3,6 +3,7 @@ import dbConnect from '@/lib/db';
 import Candidate from '@/models/Candidate';
 import TestSession from '@/models/TestSession';
 import Question from '@/models/Question';
+import ValidEmail from '@/models/ValidEmail';
 import jwt from 'jsonwebtoken';
 import { z } from 'zod';
 
@@ -21,6 +22,12 @@ export async function POST(req: NextRequest) {
     await dbConnect();
     const body = await req.json();
     const parsed = startSchema.parse(body);
+
+    // Check if email is in the allowed list
+    const validEmailEntry = await ValidEmail.findOne({ email: parsed.email });
+    if (!validEmailEntry) {
+      return NextResponse.json({ error: 'Your email is not authorized to take this test. Please contact support if you believe this is a mistake.' }, { status: 403 });
+    }
 
     // Upsert the candidate
     let candidate = await Candidate.findOne({ email: parsed.email });
@@ -72,7 +79,13 @@ export async function POST(req: NextRequest) {
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return NextResponse.json({ error: (error as any).errors }, { status: 400 });
+      const fieldErrors: Record<string, string> = {};
+      error.errors.forEach(err => {
+        if (err.path[0]) {
+          fieldErrors[err.path[0].toString()] = err.message;
+        }
+      });
+      return NextResponse.json({ fieldErrors, error: 'Validation failed' }, { status: 400 });
     }
     console.error('Start Test Error:', error);
     const message = error instanceof Error ? error.message : 'Internal Server Error';

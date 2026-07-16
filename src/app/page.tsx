@@ -11,12 +11,14 @@ export default function Home() {
   const [country, setCountry] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const router = useRouter();
 
   const handleStart = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError("");
+    setFieldErrors({});
 
     try {
       const res = await fetch("/api/auth/start", {
@@ -26,7 +28,13 @@ export default function Home() {
       });
 
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Failed to start quiz");
+      if (!res.ok) {
+        if (data.fieldErrors) {
+          setFieldErrors(data.fieldErrors);
+          throw new Error(data.error || "Validation failed");
+        }
+        throw new Error(data.error || "Failed to start quiz");
+      }
 
       localStorage.setItem("quizToken", data.token);
       localStorage.setItem("quizData", JSON.stringify(data));
@@ -69,9 +77,10 @@ export default function Home() {
                 required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full px-5 py-4 rounded-xl bg-gray-50 border border-gray-200 focus:border-[#0055A4] focus:ring-2 focus:ring-[#0055A4]/20 outline-none transition-all duration-300 text-gray-900 placeholder-gray-400"
+                className={`w-full px-5 py-4 rounded-xl bg-gray-50 border ${fieldErrors.name ? 'border-[#EF4135] focus:ring-[#EF4135]/20' : 'border-gray-200 focus:border-[#0055A4] focus:ring-[#0055A4]/20'} focus:ring-2 outline-none transition-all duration-300 text-gray-900 placeholder-gray-400`}
                 placeholder="Jean Dupont"
               />
+              {fieldErrors.name && <p className="text-[#EF4135] text-sm mt-1">{fieldErrors.name}</p>}
             </div>
             <div>
               <label htmlFor="email" className="block text-sm font-bold text-gray-700 mb-2">Email Address</label>
@@ -81,9 +90,10 @@ export default function Home() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-5 py-4 rounded-xl bg-gray-50 border border-gray-200 focus:border-[#0055A4] focus:ring-2 focus:ring-[#0055A4]/20 outline-none transition-all duration-300 text-gray-900 placeholder-gray-400"
+                className={`w-full px-5 py-4 rounded-xl bg-gray-50 border ${fieldErrors.email ? 'border-[#EF4135] focus:ring-[#EF4135]/20' : 'border-gray-200 focus:border-[#0055A4] focus:ring-[#0055A4]/20'} focus:ring-2 outline-none transition-all duration-300 text-gray-900 placeholder-gray-400`}
                 placeholder="jean@example.fr"
               />
+              {fieldErrors.email && <p className="text-[#EF4135] text-sm mt-1">{fieldErrors.email}</p>}
             </div>
             <div>
               <label htmlFor="contactNo" className="block text-sm font-bold text-gray-700 mb-2">Contact Number</label>
@@ -93,9 +103,10 @@ export default function Home() {
                 required
                 value={contactNo}
                 onChange={(e) => setContactNo(e.target.value)}
-                className="w-full px-5 py-4 rounded-xl bg-gray-50 border border-gray-200 focus:border-[#0055A4] focus:ring-2 focus:ring-[#0055A4]/20 outline-none transition-all duration-300 text-gray-900 placeholder-gray-400"
+                className={`w-full px-5 py-4 rounded-xl bg-gray-50 border ${fieldErrors.contactNo ? 'border-[#EF4135] focus:ring-[#EF4135]/20' : 'border-gray-200 focus:border-[#0055A4] focus:ring-[#0055A4]/20'} focus:ring-2 outline-none transition-all duration-300 text-gray-900 placeholder-gray-400`}
                 placeholder="+33 6 12 34 56 78"
               />
+              {fieldErrors.contactNo && <p className="text-[#EF4135] text-sm mt-1">{fieldErrors.contactNo}</p>}
             </div>
             <div>
               <label htmlFor="country" className="block text-sm font-bold text-gray-700 mb-2">Country</label>
@@ -105,9 +116,10 @@ export default function Home() {
                 required
                 value={country}
                 onChange={(e) => setCountry(e.target.value)}
-                className="w-full px-5 py-4 rounded-xl bg-gray-50 border border-gray-200 focus:border-[#0055A4] focus:ring-2 focus:ring-[#0055A4]/20 outline-none transition-all duration-300 text-gray-900 placeholder-gray-400"
+                className={`w-full px-5 py-4 rounded-xl bg-gray-50 border ${fieldErrors.country ? 'border-[#EF4135] focus:ring-[#EF4135]/20' : 'border-gray-200 focus:border-[#0055A4] focus:ring-[#0055A4]/20'} focus:ring-2 outline-none transition-all duration-300 text-gray-900 placeholder-gray-400`}
                 placeholder="France"
               />
+              {fieldErrors.country && <p className="text-[#EF4135] text-sm mt-1">{fieldErrors.country}</p>}
             </div>
             {error && <p className="text-[#EF4135] text-sm text-center font-bold bg-red-50 py-3 rounded-lg border border-red-100">{error}</p>}
             <button
